@@ -1,19 +1,13 @@
 import quizCompleteImage from "../assets/quiz-complete.png";
 import QUESTIONS from "../questions";
+import { calculateQuizStats } from "../utils/calculateQuizStats";
+import AnswerItem from "./AnswerItem";
 
 const Summary = ({ userAnswers }) => {
-  const skippedAnswers = userAnswers.filter((answer) => answer === null);
-  const correctAnswers = userAnswers.filter(
-    (answer, index) => answer === QUESTIONS[index].answers[0]
+  const { skippedShare, correctShare, wrongShare } = calculateQuizStats(
+    userAnswers,
+    QUESTIONS
   );
-
-  const skippedAnswersShare = Math.round(
-    (skippedAnswers.length / userAnswers.length) * 100
-  );
-  const correctAnswersShare = Math.round(
-    (correctAnswers.length / userAnswers.length) * 100
-  );
-  const wrongAnswersShare = 100 - skippedAnswersShare - correctAnswersShare;
 
   return (
     <div id="summary">
@@ -21,37 +15,27 @@ const Summary = ({ userAnswers }) => {
       <h2>Quiz Completed!</h2>
       <div id="summary-stats">
         <p>
-          <span className="number">{skippedAnswersShare}%</span>
+          <span className="number">{skippedShare}%</span>
           <span className="text">skipped</span>
         </p>
         <p>
-          <span className="number">{correctAnswersShare}%</span>
+          <span className="number">{correctShare}%</span>
           <span className="text">answered correctly</span>
         </p>
         <p>
-          <span className="number">{wrongAnswersShare}%</span>
+          <span className="number">{wrongShare}%</span>
           <span className="text">answered incorrectly</span>
         </p>
       </div>
       <ol>
-        {userAnswers.map((answer, index) => {
-          let cssClass = "user-answer";
-
-          if (answer === null) {
-            cssClass += " skipped";
-          } else if (answer === QUESTIONS[index].answers[0]) {
-            cssClass += " correct";
-          } else {
-            cssClass += " wrong";
-          }
-          return (
-            <li key={index}>
-              <h3>{index + 1}</h3>
-              <p className="question">{QUESTIONS[index].text}</p>
-              <p className={cssClass}>{answer ?? "Skipped"}</p>
-            </li>
-          );
-        })}
+        {userAnswers.map((answer, index) => (
+          <AnswerItem
+            key={index}
+            index={index}
+            question={QUESTIONS[index]}
+            answer={answer}
+          />
+        ))}
       </ol>
     </div>
   );
